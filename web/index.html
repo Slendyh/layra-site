@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Layra Hospitality Consultancy</title>
+  <meta name="description" content="Layra helps restaurants and venues excel with kitchen, front-of-house, and tech expertise." />
+  <style>
+    :root { --brand:#cfa935; --brand-700:#b6932d; --ink:#222; --ink-2:#555; --bg:#f6f6f6; --card:#fff; --ring:rgba(207,169,53,.4); --shadow:0 10px 25px rgba(0,0,0,.08); --radius:14px; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; line-height:1.6; }
+
+    /* NAV */
+    .nav { position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.2) blur(6px); background:rgba(255,255,255,.85); border-bottom:1px solid rgba(0,0,0,.06); }
+    .nav-inner { max-width:1200px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { font-weight:800; letter-spacing:.5px; font-size:1.2rem; }
+    .menu a { text-decoration:none; color:var(--ink); font-weight:600; margin-left:22px; padding:8px 6px; border-radius:8px; transition:color .2s; }
+    .menu a:hover { color:var(--brand); }
+
+   /* HERO */
+.hero {
+    position: relative;
+    min-height: 70vh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: #fff;
+    background: #111
+        url('https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=2000&auto=format&fit=crop')
+        center/cover no-repeat;
+    overflow: clip;
+}
+
+/* Darker overlay so text has stronger contrast */
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* slightly stronger than before */
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.6),
+        rgba(0, 0, 0, 0.72)
+    );
+}
+
+.hero-inner {
+    position: relative;
+    padding: 120px 20px;
+    max-width: 1000px;
+    z-index: 1; /* keep content above overlay */
+}
+
+/* keep your sizes, just boost readability */
+.hero h1 {
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    margin: 0 0 10px;
+    letter-spacing: .2px;
+    color: #ffffff;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.65);
+}
+
+.hero p {
+    margin: 0 auto;
+    max-width: 720px;
+    font-size: clamp(1rem, 2.1vw, 1.25rem);
+    color: #ffffff;
+    opacity: 1; /* remove the slight fade */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Buttons (unchanged size, a touch more lift on busy backgrounds) */
+.btn {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--brand);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); /* a bit darker so it reads */
+    transition: transform .18s, box-shadow .18s, background .2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background: var(--brand-700);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+    /* Sections */
+    section { padding:80px 20px; }
+    .container { max-width:1100px; margin:0 auto; }
+    .section-title { text-align:center; font-size:clamp(1.6rem, 3vw, 2.2rem); margin:0 0 14px; }
+    .kicker { text-align:center; color:var(--ink-2); margin:0 auto 40px; max-width:780px; }
+
+    /* Grid cards */
+    .grid { display:grid; gap:20px; grid-template-columns:repeat(12, 1fr); }
+    .col-4 { grid-column:span 12; }
+    @media (min-width:640px){ .col-4{ grid-column:span 6; } }
+    @media (min-width:960px){ .col-4{ grid-column:span 4; } }
+
+    .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; height:100%; transition:transform .25s, box-shadow .25s; border:1px solid rgba(0,0,0,.05); }
+    .card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.12); }
+    .card h3 { margin:12px 0 8px; font-size:1.2rem; }
+    .card p { color:var(--ink-2); margin:0; }
+    .icon { width:48px; height:48px; border-radius:12px; display:grid; place-items:center; background:radial-gradient(120px 60px at 20% 20%, rgba(207,169,53,.25), rgba(207,169,53,.05)); border:1px solid rgba(207,169,53,.25); }
+
+    .contact { background:#fff; border-top:1px solid rgba(0,0,0,.06); }
+    form { max-width:680px; margin:0 auto; }
+    input, textarea { width:100%; padding:14px 16px; font-size:1rem; border-radius:10px; border:1px solid #ddd; background:#fff; color:var(--ink); transition:border-color .2s, box-shadow .2s; }
+    textarea { min-height:140px; resize:vertical; }
+    input:focus, textarea:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 4px var(--ring); }
+
+    footer { text-align:center; padding:40px 20px; color:#666; background:#fff; border-top:1px solid rgba(0,0,0,.06); }
+
+    /* Reveal */
+    .reveal { opacity:0; transform:translateY(18px); transition:opacity .6s, transform .6s; }
+    .reveal.in-view { opacity:1; transform:translateY(0); }
+    .reveal[data-reveal="left"] { transform:translateX(-18px); }
+    .reveal[data-reveal="left"].in-view { transform:translateX(0); }
+    .reveal[data-reveal="right"] { transform:translateX(18px); }
+    .reveal[data-reveal="right"].in-view { transform:translateX(0); }
+
+    .cta { text-align:center; padding:50px 20px; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <div class="brand">LAYRA</div>
+      <nav class="menu" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="book.html">Book</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner reveal in-view" data-reveal="up">
+      <h1>Hospitality from the Inside Out</h1>
+      <p>We empower your venue with hard won expertise in kitchen operations, front of house excellence, and modern tech that drives bookings and revenue.</p>
+      <a class="btn btn-primary" href="book.html">Book an Appointment</a>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title reveal" data-reveal="up">About Us</h2>
+      <p class="kicker reveal" data-reveal="up">Layra blends decades of hands on hospitality experience with sharp digital execution. We are chefs, managers, and builders who know what it takes to run a profitable venue that guests remember.</p>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="container">
+      <h2 class="section-title reveal" data-reveal="up">Our Services</h2>
+      <p class="kicker reveal" data-reveal="up">Tailored programs for new openings and turnarounds that improve margins, flow, and guest satisfaction.</p>
+
+      <div class="grid">
+        <article class="card col-4 reveal" data-reveal="left"><div class="icon"></div><h3>Concept and Positioning</h3><p>Market fit, menu direction, pricing, and brand tone that set you apart while keeping costs in line.</p></article>
+        <article class="card col-4 reveal" data-reveal="up"><div class="icon"></div><h3>Kitchen Optimisation</h3><p>Menu engineering, prep systems, and station layouts that raise quality and speed while cutting waste.</p></article>
+        <article class="card col-4 reveal" data-reveal="right"><div class="icon"></div><h3>Front of House</h3><p>Service choreography, training, and reservation flow that deliver consistent, memorable experiences.</p></article>
+        <article class="card col-4 reveal" data-reveal="left"><div class="icon"></div><h3>Team Development</h3><p>Hiring playbooks, training modules, and KPIs that create a motivated and accountable team.</p></article>
+        <article class="card col-4 reveal" data-reveal="up"><div class="icon"></div><h3>Digital and Systems</h3><p>Web, booking, POS, and analytics integration that make decisions clear and marketing effective.</p></article>
+        <article class="card col-4 reveal" data-reveal="right"><div class="icon"></div><h3>Turnaround Sprints</h3><p>Four to six week accelerators that stabilise operations and move you back to growth.</p></article>
+      </div>
+
+      <div class="cta">
+        <a class="btn btn-primary" href="book.html">Book an Appointment</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+  <div class="container">
+    <h2 class="section-title reveal" data-reveal="up">Contact Us</h2>
+    <p class="kicker reveal" data-reveal="up">
+      Tell us what you want to achieve. We will reply within one business day.
+    </p>
+
+    <!-- Netlify Form -->
+    <form
+      name="contact"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      class="reveal"
+      data-reveal="up"
+    >
+      <!-- required for Netlify -->
+      <input type="hidden" name="form-name" value="contact" />
+      <p style="display:none;">
+        <label>Don’t fill this out: <input name="bot-field" /></label>
+      </p>
+
+      <div style="display:grid; grid-template-columns: 1fr; gap: 14px;">
+        <input aria-label="Name" type="text" name="name" placeholder="Name" required />
+        <input aria-label="Email" type="email" name="email" placeholder="Email" required />
+        <textarea aria-label="Message" name="message" placeholder="Message" required></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Send Message</button>
+    </form>
+  </div>
+</section>
+
+
+  <footer>&copy; 2025 Layra Hospitality Consultancy. All rights reserved.</footer>
+
+  <script>
+    (function(){
+      const els=document.querySelectorAll('.reveal');
+      const io=new IntersectionObserver((en)=>{
+        en.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); } });
+      },{threshold:.14});
+      els.forEach(el=>io.observe(el));
+    })();
+  </script>
+</body>
+</html>

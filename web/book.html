@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book an Appointment — Layra</title>
+  <meta name="description" content="Schedule a call with Layra." />
+  <style>
+    :root { --brand:#cfa935; --brand-700:#b6932d; --ink:#222; --ink-2:#555; --bg:#f6f6f6; --card:#fff; --ring:rgba(207,169,53,.4); --shadow:0 10px 25px rgba(0,0,0,.08); --radius:14px; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color:var(--ink); background:var(--bg); }
+    a { color:inherit; text-decoration:none; }
+    header { position:sticky; top:0; background:rgba(255,255,255,.9); backdrop-filter:blur(6px); border-bottom:1px solid rgba(0,0,0,.06); }
+    .nav { display:flex; align-items:center; justify-content:space-between; max-width:1000px; margin:0 auto; padding:14px 16px; }
+    .brand { font-weight:800; letter-spacing:.4px; }
+    .btn { display:inline-block; padding:12px 18px; border-radius:10px; background:var(--brand); color:#fff; font-weight:700; border:none; cursor:pointer; }
+    .btn:hover { background:var(--brand-700); }
+    .wrap { max-width:1000px; margin:0 auto; padding:30px 16px 60px; }
+    .grid { display:grid; gap:22px; grid-template-columns: 1fr; align-items:start; }
+    @media (min-width:960px){ .grid { grid-template-columns: 1fr 1fr; } }
+    .card { background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; }
+    .section-title { margin:10px 0 6px; font-size:1.6rem; }
+    .muted { color:var(--ink-2); }
+
+    /* Calendar */
+    .cal { display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+    .day { text-align:center; font-weight:700; padding:6px 0; color:var(--ink-2); }
+    .slot { padding:10px; border:1px solid #ddd; border-radius:10px; text-align:center; cursor:pointer; user-select:none; background:#f7f7f7; }
+    .slot:hover { background:#efefef; }
+    .slot[aria-disabled="true"] { opacity:.4; pointer-events:none; }
+    .slot.active { outline:2px solid var(--brand); box-shadow:0 0 0 4px var(--ring); background:#fff; }
+
+    /* Form */
+    label { display:block; font-weight:600; margin:10px 0 6px; }
+    input, textarea { width:100%; padding:12px 14px; border:1px solid #ddd; border-radius:10px; font-size:1rem; }
+    input:focus, textarea:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 4px var(--ring); }
+    .success { background:#f0fdf4; color:#14532d; border:1px solid #86efac; padding:12px 14px; border-radius:10px; margin-top:12px; display:none; }
+    .error { background:#fef2f2; color:#7f1d1d; border:1px solid #fecaca; padding:12px 14px; border-radius:10px; margin-top:12px; display:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand"><a href="index.html">LAYRA</a></div>
+      <a class="btn" href="index.html">Back to site</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <h1 class="section-title">Book an Appointment</h1>
+    <p class="muted">Choose a time that works. Meetings are 45 minutes on Google Meet unless you specify otherwise.</p>
+
+    <div class="grid">
+      <!-- Calendar and slots -->
+      <section class="card">
+        <h3>Select a date</h3>
+        <div id="calendar" class="cal" aria-live="polite"></div>
+        <div id="slots" style="margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;"></div>
+      </section>
+
+      <!-- Booking form -->
+      <section class="card">
+        <h3>Details</h3>
+        <form id="bookForm">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" required />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required />
+
+          <label for="phone">Phone (optional)</label>
+          <input id="phone" name="phone" type="tel" />
+
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" placeholder="Goals for the call" required></textarea>
+
+          <input id="iso" name="iso" type="hidden" />
+          <div class="success" id="ok">Booked. A confirmation email has been sent.</div>
+          <div class="error" id="err">Something went wrong. Please try again.</div>
+
+          <button class="btn" style="margin-top:12px; width:100%;" type="submit">Confirm Booking</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Netlify Function endpoint (step 4)
+    const FUNCTION_URL = '/.netlify/functions/book';
+
+    // Force English regardless of browser locale
+    const LOCALE = 'en-US';
+    const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Simple rolling 4 week calendar with weekday slots
+    const calendarEl = document.getElementById('calendar');
+    const slotsEl = document.getElementById('slots');
+    const isoInput = document.getElementById('iso');
+
+    function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+    function fmt(d){ return d.toLocaleDateString(LOCALE,{weekday:'short', month:'short', day:'numeric'}); }
+    function fmtTime(d){ return d.toLocaleTimeString(LOCALE,{hour:'2-digit', minute:'2-digit'}); }
+
+    const today = startOfDay(new Date());
+    const days = Array.from({length:28}, (_,i)=> new Date(today.getTime()+ i*86400000));
+
+    function renderCalendar(){
+      calendarEl.innerHTML = '';
+      // Weekday headers
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(w=>{
+        const h = document.createElement('div'); h.className='day'; h.textContent=w; calendarEl.appendChild(h);
+      });
+      // Blank leading cells
+      const blanks = days[0].getDay();
+      for(let i=0;i<blanks;i++){ const b=document.createElement('div'); calendarEl.appendChild(b); }
+      // Days
+      days.forEach(d=>{
+        const btn = document.createElement('button');
+        btn.type='button'; btn.className='slot'; btn.textContent=fmt(d);
+        btn.addEventListener('click', ()=> selectDate(d, btn));
+        calendarEl.appendChild(btn);
+      });
+    }
+
+    function businessSlotsForDate(d){
+      const day = d.getDay(); // 0 Sun ... 6 Sat
+      if(day===0){ return []; } // closed Sundays
+      const base = new Date(d); base.setHours(9,0,0,0); // start 09:00
+      const slots=[]; 
+      for(let i=0;i<7;i++){ 
+        const s=new Date(base.getTime()+ i*60*60*1000); // hourly
+        if(s.getHours()===12) continue; // lunch break 12:00
+        slots.push(s);
+      }
+      return slots;
+    }
+
+    let activeDate = null;
+    function selectDate(d, el){
+      activeDate = startOfDay(d);
+      document.querySelectorAll('.cal .slot').forEach(s=> s.classList.remove('active'));
+      el.classList.add('active');
+      renderSlots(d);
+    }
+
+    function renderSlots(d){
+      slotsEl.innerHTML='';
+      const items = businessSlotsForDate(d);
+      if(items.length===0){ slotsEl.textContent='No availability for this date.'; isoInput.value=''; return; }
+      items.forEach(t=>{
+        const b=document.createElement('button'); 
+        b.type='button'; b.className='slot'; b.textContent=fmtTime(t);
+        b.addEventListener('click', ()=>{
+          document.querySelectorAll('#slots .slot').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active');
+          isoInput.value = new Date(t).toISOString();
+        });
+        slotsEl.appendChild(b);
+      });
+    }
+
+    renderCalendar();
+
+    document.getElementById('bookForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const iso = isoInput.value;
+      if(!iso){ alert('Please choose a date and time.'); return; }
+      const data = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
+        iso,
+        tz: TZ
+      };
+      try {
+        const res = await fetch(FUNCTION_URL, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(data) 
+        });
+        if(!res.ok) throw new Error('Bad response');
+        document.getElementById('ok').style.display='block';
+        document.getElementById('err').style.display='none';
+        e.target.reset(); isoInput.value=''; slotsEl.innerHTML='';
+      } catch(err){
+        document.getElementById('ok').style.display='none';
+        document.getElementById('err').style.display='block';
+      }
+    });
+  </script>
+</body>
+</html>
