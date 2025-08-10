@@ -1,0 +1,9 @@
+[functions]
+  directory = "netlify/functions"
+
+# (optional) single-page-app style 404 handling; safe for static sites
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
